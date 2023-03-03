@@ -1,6 +1,8 @@
 const express = require('express');
 const morgan = require('morgan');
 const mongoose = require('mongoose');
+const cors = require('cors');
+
 const app = express();
 
 // Environment Variavles
@@ -8,58 +10,24 @@ require('dotenv/config');
 const apiUrl = process.env.API_URL;
 const dbUrl = process.env.DB_URL;
 
+app.use(cors());
+app.options('*', cors());
+
 // Middlewares
 app.use(express.json());
 app.use(morgan('tiny'));
 
-// Schemas & Models
-const productSchema = mongoose.Schema({
-  name: String,
-  image: String,
-  countInStock: {
-    type: Number,
-    required: true
-  }
-})
-
-const Product = mongoose.model('Product', productSchema);
-
 // Routes
-app.get(`${apiUrl}/products`, async(req, res) => {
-  const productList = await Product.find();
-  
-  if(!productList) {
-    res.status(500).json({
-      success: false
-    })
-  }
+const productRouter = require('./routes/products');
+const categoryRouter = require('./routes/categories');
+const orderRouter = require('./routes/orders');
+const userRouter = require('./routes/users');
 
-  res.send(productList);
-})
-
-app.post(`${apiUrl}/product`, (req, res) => {
-  
-  const product = new Product({
-    name: req.body.name,
-    image: req.body.image,
-    countInStock: req.body.countInStock
-  })
-  
-  product.save()
-  .then(createdProduct => {
-    res.status(201).json({
-      success: true,
-      data: createdProduct
-    })
-  })
-  .catch(err => {
-    res.status(500).json({
-      success: false,
-      error: err
-    })
-  })
-
-})
+// Route Paths
+app.use(`${apiUrl}/products`, productRouter);
+app.use(`${apiUrl}/categories`, categoryRouter);
+app.use(`${apiUrl}/orders`, orderRouter);
+app.use(`${apiUrl}/users`, userRouter);
 
 // Database Connection
 mongoose.connect(dbUrl)
