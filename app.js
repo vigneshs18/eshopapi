@@ -2,11 +2,13 @@ const express = require('express');
 const morgan = require('morgan');
 const mongoose = require('mongoose');
 const cors = require('cors');
+require('dotenv/config');
+const authJwt = require('./helpers/jwt');
+const errorHandler = require('./helpers/error-handler');
 
 const app = express();
 
-// Environment Variavles
-require('dotenv/config');
+// Environment Variables
 const apiUrl = process.env.API_URL;
 const dbUrl = process.env.DB_URL;
 
@@ -16,6 +18,8 @@ app.options('*', cors());
 // Middlewares
 app.use(express.json());
 app.use(morgan('tiny'));
+app.use(authJwt());
+app.use(errorHandler);
 
 // Routes
 const productRouter = require('./routes/products');
