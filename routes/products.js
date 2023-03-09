@@ -18,7 +18,7 @@ router.get(`/`, async(req, res) => {
   // const productList = await Product.find().select('name image -_id');
   
   if(!productList) {
-    res.status(500).json({
+    return res.status(500).json({
       success: false
     })
   }
@@ -35,7 +35,7 @@ router.get(`/:id`, async(req, res) => {
   const product= await Product.findById(req.params.id).populate('category');
   
   if(!product) {
-    res.status(500).json({
+    return res.status(500).json({
       success: false
     })
   }
@@ -132,7 +132,7 @@ router.get(`/get/count`, async(req, res) => {
   const productCount = await Product.countDocuments();
   
   if(!productCount) {
-    res.status(500).json({
+    return res.status(500).json({
       success: false
     })
   }
@@ -146,7 +146,7 @@ router.get(`/get/count`, async(req, res) => {
   const productCount = await Product.countDocuments();
   
   if(!productCount) {
-    res.status(500).json({
+    return res.status(500).json({
       success: false
     })
   }
@@ -163,7 +163,7 @@ router.get(`/get/featured/:count`, async(req, res) => {
   const products = await Product.find({isFeatured: true}).limit(+count);
   
   if(!products) {
-    res.status(500).json({
+    return res.status(500).json({
       success: false
     })
   }

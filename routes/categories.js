@@ -1,4 +1,5 @@
 const express = require('express');
+const mongoose = require('mongoose');
 const { Category } = require('../models/category');
 
 const router = express.Router();
@@ -7,7 +8,7 @@ router.get('/', async(req, res) => {
   const categoryList = await Category.find();
   
   if(!categoryList) {
-    res.status(500).json({
+    return res.status(500).json({
       success: false
     })
   }
@@ -16,10 +17,15 @@ router.get('/', async(req, res) => {
 })
 
 router.get('/:id', async(req, res) => {
+
+  if(!mongoose.isValidObjectId(req.params.id)) {
+    return res.status(400).send('Invalid Category Id');
+  }
+
   const category = await Category.findById(req.params.id);
 
   if(!category) {
-    res.status(500).json({
+    return res.status(500).json({
       message: 'The category with given ID was not found'
     });
   }
@@ -44,6 +50,11 @@ router.post('/', async(req, res) => {
 })
 
 router.put('/:id', async(req, res) => {
+
+  if(!mongoose.isValidObjectId(req.params.id)) {
+    return res.status(400).send('Invalid Category Id');
+  }
+
   const category = await Category.findByIdAndUpdate(
     req.params.id,
     {
@@ -64,6 +75,11 @@ router.put('/:id', async(req, res) => {
 })
 
 router.delete('/:id', (req, res) => {
+
+  if(!mongoose.isValidObjectId(req.params.id)) {
+    return res.status(400).send('Invalid Category Id');
+  }
+
   Category.findByIdAndRemove(req.params.id)
   .then(category => {
     if(category) {
