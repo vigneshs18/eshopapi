@@ -75,6 +75,10 @@ router.get(`/:id`, async(req, res) => {
   res.send(product);
 })
 
+// Note: For POST & PUT requests, we must use multer lib (or uploadOptions) as a middleware at router level
+// to parse FormData (or Multipart/FormData) embedded with these requests.
+// Normal express.json() middleware request parsing at application level will not work for FormData requests.
+
 router.post(`/`, uploadOptions.single('image'), async(req, res) => {
 
   const category = await Category.findById(req.body.category);
@@ -93,7 +97,7 @@ router.post(`/`, uploadOptions.single('image'), async(req, res) => {
     name: req.body.name,
     description: req.body.description,
     richDescription: req.body.richDescription,
-    image: `${basePath}${fileName}`,
+    image: `${basePath}${fileName}`,  // "http://localhost:3000/public/upload/image-2323232"
     brand: req.body.brand,
     price: req.body.price,
     category: req.body.category,
@@ -113,7 +117,7 @@ router.post(`/`, uploadOptions.single('image'), async(req, res) => {
 })
 
 
-router.put('/:id', async(req, res) => {
+router.put('/:id', uploadOptions.single('image'), async(req, res) => {
 
   if(!mongoose.isValidObjectId(req.params.id)) {
     return res.status(400).send('Invalid Product Id');
@@ -182,20 +186,6 @@ router.delete('/:id', (req, res) => {
   .catch(err => {
     return res.status(400).json({success: false, error: err});
   })
-})
-
-router.get(`/get/count`, async(req, res) => {
-  const productCount = await Product.countDocuments();
-  
-  if(!productCount) {
-    return res.status(500).json({
-      success: false
-    })
-  }
-
-  res.send({
-    productCount: productCount
-  });
 })
 
 router.get(`/get/count`, async(req, res) => {
